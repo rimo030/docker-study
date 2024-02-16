@@ -1,0 +1,28 @@
+sudo: required
+
+language: generic
+
+services:
+    - docker
+
+before_install:
+    - echo "Start creating an image with dockerfile"
+    - docker build -t rimo030/docker-react-app -f ./docker-react-app/Dockerfile.dev ./docker-react-app
+
+script:
+    - docker run -e CI=true rimo030/docker-react-app npm run test -- --coverage
+
+after_success:
+    - echo "Test success"
+
+deploy:
+    provider: elasticbeanstalk
+    region: "ap-northeast-2"
+    app: "docker-react-app"
+    env: "Docker-react-app-env"
+    bucket_name: "elasticbeanstalk-ap-northeast-2-767397917400"
+    bucket_path: "docker-react-app"
+    on:
+        branch: main
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
